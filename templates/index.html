@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack AI - Monitor & Reduce Your Carbon Footprint</title>
+    
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Achievement Unlock Modal -->
+    <div id="achievement-modal" class="modal-overlay hidden">
+        <div class="modal-content achievement-unlocked-card">
+            <button class="modal-close" onclick="closeAchievementModal()">&times;</button>
+            <div class="shine"></div>
+            <div class="badge-display-large" id="modal-badge-icon">🏆</div>
+            <h2 class="outfit-heading">Milestone Unlocked!</h2>
+            <h3 id="modal-badge-name">Plant-Based Power</h3>
+            <p id="modal-badge-desc">Log a vegetarian or vegan diet style.</p>
+            <button class="btn btn-primary" onclick="closeAchievementModal()">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- Background Decorative Elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-container">
+        
+        <!-- ================= AUTH VIEW ================= -->
+        <div id="view-auth" class="auth-wrapper app-view">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo">
+                        <i class="fa-solid fa-leaf green-glow"></i>
+                        <span class="logo-text">EcoTrack <span class="accent-text">AI</span></span>
+                    </div>
+                    <p class="tagline">Your personal guide to sustainable living</p>
+                </div>
+                
+                <!-- Toggle Form Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-login-btn" onclick="toggleAuthForm('login')">Log In</button>
+                    <button class="auth-tab" id="tab-register-btn" onclick="toggleAuthForm('register')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-login" class="auth-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label for="login-username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="login-username" required placeholder="Enter username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="login-password" required placeholder="Enter password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Log In</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" class="auth-form hidden" onsubmit="handleRegister(event)">
+                    <div class="input-group">
+                        <label for="reg-username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="reg-username" required placeholder="Choose username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" id="reg-email" required placeholder="Enter email address">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="reg-password" required placeholder="Create password (min 6 chars)">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Create Account</span> <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= MAIN DASHBOARD SHELL ================= -->
+        <div id="view-dashboard-shell" class="dashboard-shell app-view hidden">
+            
+            <!-- SIDEBAR NAVIGATION -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <i class="fa-solid fa-leaf green-glow"></i>
+                        <span class="logo-text">EcoTrack <span class="accent-text">AI</span></span>
+                    </div>
+                </div>
+                
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="log-activity" onclick="navigateTo('log-activity')">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Log Footprint</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="recommendations" onclick="navigateTo('recommendations')">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>AI Tips</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="achievements" onclick="navigateTo('achievements')">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="profile" onclick="navigateTo('profile')">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-badge">
+                        <div class="user-avatar" id="sidebar-avatar">U</div>
+                        <div class="user-info">
+                            <p class="user-name" id="sidebar-username">Username</p>
+                            <span class="user-status">Eco Tracker</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn-logout" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Sign Out</span>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- MAIN WORKSPACE -->
+            <main class="workspace">
+                
+                <!-- MOBILE NAV HEADER -->
+                <header class="mobile-header">
+                    <div class="logo">
+                        <i class="fa-solid fa-leaf green-glow"></i>
+                        <span>EcoTrack AI</span>
+                    </div>
+                    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </header>
+
+                <!-- MOBILE DROPDOWN NAVIGATION -->
+                <div id="mobile-nav" class="mobile-nav-overlay hidden">
+                    <div class="mobile-nav-content">
+                        <button class="mobile-nav-close" onclick="toggleMobileMenu()">&times;</button>
+                        <nav class="mobile-menu">
+                            <a href="#" class="mobile-nav-item active" data-view="dashboard" onclick="navigateToMobile('dashboard')">
+                                <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+                            </a>
+                            <a href="#" class="mobile-nav-item" data-view="log-activity" onclick="navigateToMobile('log-activity')">
+                                <i class="fa-solid fa-calculator"></i><span>Log Footprint</span>
+                            </a>
+                            <a href="#" class="mobile-nav-item" data-view="recommendations" onclick="navigateToMobile('recommendations')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i><span>AI Tips</span>
+                            </a>
+                            <a href="#" class="mobile-nav-item" data-view="achievements" onclick="navigateToMobile('achievements')">
+                                <i class="fa-solid fa-trophy"></i><span>Achievements</span>
+                            </a>
+                            <a href="#" class="mobile-nav-item" data-view="profile" onclick="navigateToMobile('profile')">
+                                <i class="fa-solid fa-user-gear"></i><span>Settings</span>
+                            </a>
+                            <hr class="nav-divider">
+                            <a href="#" class="mobile-nav-item logout-link" onclick="handleLogout()">
+                                <i class="fa-solid fa-right-from-bracket"></i><span>Sign Out</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEWS CONTAINER -->
+                <div class="view-content">
+
+                    <!-- ================= SUB-VIEW: DASHBOARD ================= -->
+                    <section id="subview-dashboard" class="sub-view">
+                        <div class="view-header">
+                            <div>
+                                <h1 class="outfit-heading">Welcome back, <span id="dash-greeting-name">User</span>!</h1>
+                                <p class="subtext">Here's your environmental impact summary.</p>
+                            </div>
+                            <div class="header-action">
+                                <button class="btn btn-primary" onclick="navigateTo('log-activity')">
+                                    <i class="fa-solid fa-plus"></i> Log Activity
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Kpi Cards Grid -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-icon icon-today"><i class="fa-solid fa-calendar-day"></i></div>
+                                <div class="kpi-details">
+                                    <span class="kpi-label">Today's Emissions</span>
+                                    <h3 class="kpi-value" id="kpi-today">0.0 <span class="unit">kg CO₂</span></h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon icon-weekly"><i class="fa-solid fa-calendar-week"></i></div>
+                                <div class="kpi-details">
+                                    <span class="kpi-label">Weekly Emissions</span>
+                                    <h3 class="kpi-value" id="kpi-weekly">0.0 <span class="unit">kg CO₂</span></h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon icon-monthly"><i class="fa-solid fa-calendar-days"></i></div>
+                                <div class="kpi-details">
+                                    <span class="kpi-label">Monthly Total</span>
+                                    <h3 class="kpi-value" id="kpi-monthly">0.0 <span class="unit">kg CO₂</span></h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon icon-target"><i class="fa-solid fa-bullseye"></i></div>
+                                <div class="kpi-details">
+                                    <span class="kpi-label">Daily Goal Target</span>
+                                    <h3 class="kpi-value" id="kpi-goal">20.0 <span class="unit">kg CO₂</span></h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar toward Goal -->
+                        <div class="dashboard-section card goal-tracker-card">
+                            <div class="goal-header">
+                                <span class="section-title"><i class="fa-solid fa-gauge-high text-accent"></i> Daily Limit Progress</span>
+                                <span class="goal-percentage" id="goal-percentage-text">0% Used</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="goal-progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <p class="goal-helper-text" id="goal-helper-message">Log your footprint today to check your target limit.</p>
+                        </div>
+
+                        <!-- Charts Grid -->
+                        <div class="charts-grid">
+                            <div class="chart-card card">
+                                <span class="chart-title"><i class="fa-solid fa-chart-line text-accent"></i> Emissions Trend (Last 7 Days)</span>
+                                <div class="chart-container">
+                                    <canvas id="chart-emissions-trend"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-card card">
+                                <span class="chart-title"><i class="fa-solid fa-chart-pie text-accent"></i> Category Breakdown (Last 30 Days)</span>
+                                <div class="chart-container">
+                                    <canvas id="chart-category-breakdown"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity List -->
+                        <div class="recent-activity-section card">
+                            <div class="section-header-row">
+                                <span class="section-title"><i class="fa-solid fa-history text-accent"></i> Recent Activity Logs</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="activity-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Calculated Footprint</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-recent-table">
+                                        <tr>
+                                            <td colspan="3" class="empty-state">No logs recorded yet. Start tracking below!</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= SUB-VIEW: LOG FOOTPRINT (CALCULATOR) ================= -->
+                    <section id="subview-log-activity" class="sub-view hidden">
+                        <div class="view-header">
+                            <div>
+                                <h1 class="outfit-heading">Log Your Footprint</h1>
+                                <p class="subtext">Update your daily energy usage, transportation distance, and food habits.</p>
+                            </div>
+                        </div>
+
+                        <div class="calculator-container">
+                            <!-- Calculator Form Card -->
+                            <form id="calculator-form" class="card calculator-card" onsubmit="submitFootprint(event)">
+                                <div class="calc-step">
+                                    <div class="step-header">
+                                        <span class="step-num">01</span>
+                                        <h3>Transportation Habits</h3>
+                                    </div>
+                                    <div class="input-grid">
+                                        <div class="input-group">
+                                            <label for="calc-transport-type">Transportation Mode</label>
+                                            <div class="custom-select-wrapper">
+                                                <i class="fa-solid fa-car-side icon-select"></i>
+                                                <select id="calc-transport-type" onchange="updateLiveEstimation()">
+                                                    <option value="active">Active Transit (Walk/Bike)</option>
+                                                    <option value="gasoline_car">Gasoline Vehicle</option>
+                                                    <option value="electric_car">Electric Vehicle</option>
+                                                    <option value="public_transit">Public Transit (Bus/Subway)</option>
+                                                    <option value="flight">Aviation (Flight)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <label for="calc-transport-miles">Distance (Miles)</label>
+                                            <div class="slider-wrapper">
+                                                <input type="range" id="calc-transport-miles" min="0" max="200" value="0" class="range-slider" oninput="syncSliderVal('calc-transport-miles', 'val-miles'); updateLiveEstimation()">
+                                                <span class="slider-val" id="val-miles">0 miles</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="calc-divider">
+
+                                <div class="calc-step">
+                                    <div class="step-header">
+                                        <span class="step-num">02</span>
+                                        <h3>Home Utility Usage</h3>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="calc-electricity">Daily Electricity Usage (kWh)</label>
+                                        <div class="slider-wrapper">
+                                            <input type="range" id="calc-electricity" min="0" max="50" step="0.5" value="0" class="range-slider" oninput="syncSliderVal('calc-electricity', 'val-elec'); updateLiveEstimation()">
+                                            <span class="slider-val" id="val-elec">0 kWh</span>
+                                        </div>
+                                        <span class="helper-note">Average household uses ~28 kWh per day.</span>
+                                    </div>
+                                </div>
+
+                                <hr class="calc-divider">
+
+                                <div class="calc-step">
+                                    <div class="step-header">
+                                        <span class="step-num">03</span>
+                                        <h3>Diet Preference</h3>
+                                    </div>
+                                    <div class="diet-options-grid">
+                                        <label class="diet-card-option">
+                                            <input type="radio" name="calc-diet" value="vegan" onchange="updateLiveEstimation()">
+                                            <div class="diet-content">
+                                                <div class="diet-icon">🌱</div>
+                                                <span class="diet-name">Vegan</span>
+                                                <span class="diet-co2">2.9 kg CO₂/day</span>
+                                            </div>
+                                        </label>
+                                        <label class="diet-card-option">
+                                            <input type="radio" name="calc-diet" value="vegetarian" onchange="updateLiveEstimation()">
+                                            <div class="diet-content">
+                                                <div class="diet-icon">🥗</div>
+                                                <span class="diet-name">Vegetarian</span>
+                                                <span class="diet-co2">3.8 kg CO₂/day</span>
+                                            </div>
+                                        </label>
+                                        <label class="diet-card-option">
+                                            <input type="radio" name="calc-diet" value="average" checked onchange="updateLiveEstimation()">
+                                            <div class="diet-content">
+                                                <div class="diet-icon">🍖</div>
+                                                <span class="diet-name">Average</span>
+                                                <span class="diet-co2">5.6 kg CO₂/day</span>
+                                            </div>
+                                        </label>
+                                        <label class="diet-card-option">
+                                            <input type="radio" name="calc-diet" value="meat_heavy" onchange="updateLiveEstimation()">
+                                            <div class="diet-content">
+                                                <div class="diet-icon">🥩</div>
+                                                <span class="diet-name">Meat Heavy</span>
+                                                <span class="diet-co2">7.2 kg CO₂/day</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <hr class="calc-divider">
+
+                                <div class="calc-step">
+                                    <div class="input-group">
+                                        <label for="calc-date">Log Date</label>
+                                        <div class="input-wrapper">
+                                            <i class="fa-solid fa-calendar-alt"></i>
+                                            <input type="date" id="calc-date" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Save Daily Log
+                                </button>
+                            </form>
+
+                            <!-- Live Calculator Estimation Widget -->
+                            <div class="card live-estimator-card">
+                                <div class="glass-bg"></div>
+                                <span class="widget-badge">LIVE CO₂ EST.</span>
+                                <h2>Real-time Footprint</h2>
+                                <div class="live-counter">
+                                    <span id="live-co2-val">5.60</span>
+                                    <span class="unit">kg CO₂</span>
+                                </div>
+                                <div class="live-breakdown">
+                                    <div class="breakdown-item">
+                                        <span><i class="fa-solid fa-car"></i> Transport</span>
+                                        <span id="live-breakdown-transport">0.00 kg</span>
+                                    </div>
+                                    <div class="breakdown-item">
+                                        <span><i class="fa-solid fa-bolt"></i> Electricity</span>
+                                        <span id="live-breakdown-electricity">0.00 kg</span>
+                                    </div>
+                                    <div class="breakdown-item">
+                                        <span><i class="fa-solid fa-utensils"></i> Diet</span>
+                                        <span id="live-breakdown-diet">5.60 kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= SUB-VIEW: RECOMMENDATIONS ================= -->
+                    <section id="subview-recommendations" class="sub-view hidden">
+                        <div class="view-header">
+                            <div>
+                                <h1 class="outfit-heading">Gemini AI Recommendations</h1>
+                                <p class="subtext">Custom carbon reduction checklists tailored to your consumption data.</p>
+                            </div>
+                            <div class="header-action">
+                                <button class="btn btn-secondary" id="btn-refresh-recs" onclick="generateNewRecommendations()">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Refresh AI Tips
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations list -->
+                        <div class="recs-container" id="recommendations-list">
+                            <!-- Loader -->
+                            <div class="loading-state card">
+                                <div class="spinner"></div>
+                                <p>Analyzing footprint data and generating ideas...</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= SUB-VIEW: ACHIEVEMENTS ================= -->
+                    <section id="subview-achievements" class="sub-view hidden">
+                        <div class="view-header">
+                            <div>
+                                <h1 class="outfit-heading">Milestones & Achievements</h1>
+                                <p class="subtext">Unlock awards and track sustainable habits.</p>
+                            </div>
+                        </div>
+
+                        <!-- Achievements Grid -->
+                        <div class="achievements-grid" id="achievements-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </section>
+
+                    <!-- ================= SUB-VIEW: SETTINGS ================= -->
+                    <section id="subview-profile" class="sub-view hidden">
+                        <div class="view-header">
+                            <div>
+                                <h1 class="outfit-heading">Account & Settings</h1>
+                                <p class="subtext">Manage targets and profile credentials.</p>
+                            </div>
+                        </div>
+
+                        <div class="settings-container">
+                            <form id="profile-form" class="card settings-card" onsubmit="updateProfile(event)">
+                                <div class="input-group">
+                                    <label for="profile-username">Username</label>
+                                    <div class="input-wrapper disabled">
+                                        <i class="fa-solid fa-user"></i>
+                                        <input type="text" id="profile-username" readonly disabled>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="profile-email">Email Address</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-envelope"></i>
+                                        <input type="email" id="profile-email" required placeholder="name@example.com">
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="profile-goal">Daily Emissions Target (kg CO₂)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-bullseye"></i>
+                                        <input type="number" id="profile-goal" step="0.1" min="1" max="100" required>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="profile-password">Update Password (Leave blank to keep current)</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-lock"></i>
+                                        <input type="password" id="profile-password" placeholder="New password">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Settings
+                                </button>
+                            </form>
+                        </div>
+                    </section>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
